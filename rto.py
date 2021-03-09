@@ -54,20 +54,23 @@ def replay(args) -> None:
 
 def on_error(name: str, error: Exception) -> None:
     print("%s threw an exception: %s" % (name, error), file=sys.stderr)
-    traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+    traceback.print_exception(
+        type(error), error, error.__traceback__, file=sys.stderr)
 
 
 def run(args) -> None:
     """Run a match."""
     for auto_trader in args.autotrader:
         if auto_trader.suffix.lower == ".py" and auto_trader.parent != pathlib.Path("."):
-            print("Python auto traders cannot be in a different directory: '%s'" % auto_trader, file=sys.stderr)
+            print("Python auto traders cannot be in a different directory: '%s'" %
+                  auto_trader, file=sys.stderr)
             return
         if not auto_trader.exists():
             print("'%s' does not exist" % auto_trader, file=sys.stderr)
             return
         if not auto_trader.with_suffix(".json").exists():
-            print("'%s': configuration file is missing: %s" % (auto_trader, auto_trader.with_suffix(".json")))
+            print("'%s': configuration file is missing: %s" % (
+                auto_trader, auto_trader.with_suffix(".json")))
             return
 
     with multiprocessing.Pool(len(args.autotrader) + 2, maxtasksperchild=1) as pool:
@@ -76,7 +79,7 @@ def run(args) -> None:
 
         # Give the exchange simulator a chance to start up.
         time.sleep(0.5)
-        
+
         for path in args.autotrader:
             if path.suffix.lower() == ".py":
                 pool.apply_async(ready_trader_one.trader.main, (path.with_suffix("").name,),
@@ -96,7 +99,8 @@ def run(args) -> None:
 
 def main() -> None:
     """Process command line arguments and execute the given command."""
-    parser = argparse.ArgumentParser(description="Ready Trader One command line utility.")
+    parser = argparse.ArgumentParser(
+        description="Ready Trader One command line utility.")
     subparsers = parser.add_subparsers(title="command")
 
     run_parser = subparsers.add_parser("run", aliases=["go", "ru"],
